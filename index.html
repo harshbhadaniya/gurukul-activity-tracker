@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="gu-IN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Shree Swaminarayan Gurukul, Surendranagar (LKG, UKG & Nursery Section) - Playful Bilingual Activity Tracker for Parents and Teachers.">
+  <title>Shree Swaminarayan Gurukul, Surendranagar - Activity Tracker</title>
+  
+  <!-- Playful Google Fonts: Outfit for English & Noto Sans Gujarati for Gujarati -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@300;400;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons for playful, clean symbols -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tailwind CSS v3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            saffron: {
+              DEFAULT: '#F58220',
+              light: '#FFF3E8',
+              hover: '#E07115',
+            },
+            maroon: {
+              DEFAULT: '#800000',
+              light: '#FFEBEB',
+              hover: '#660000',
+            },
+            pastelYellow: '#FEFCE8',
+            pastelBlue: '#E0F2FE',
+            pastelOrange: '#FFEDD5',
+            pastelPink: '#FCE7F3',
+            pastelGreen: '#DCFCE7',
+          },
+          fontFamily: {
+            sans: ['Outfit', 'Noto Sans Gujarati', 'sans-serif'],
+            playful: ['Outfit', 'sans-serif'],
+          },
+          boxShadow: {
+            'playful-sm': '0 4px 0 0 rgba(128, 0, 0, 0.1)',
+            'playful-md': '0 6px 0 0 rgba(128, 0, 0, 0.15)',
+            'playful-lg': '0 8px 0 0 rgba(128, 0, 0, 0.2)',
+            'playful-saffron': '0 6px 0 0 rgba(245, 130, 32, 0.3)',
+            'playful-maroon': '0 6px 0 0 rgba(128, 0, 0, 0.3)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Stylesheet for Playful Background, Animations, Patterns -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-pastelYellow text-slate-800 font-sans min-h-screen flex flex-col selection:bg-saffron selection:text-white">
+
+  <!-- Playful Header Container -->
+  <header id="header-container" class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b-4 border-saffron shadow-sm transition-all duration-300"></header>
+
+  <!-- Main Content Area -->
+  <main id="main-content" class="flex-grow"></main>
+
+  <!-- Playful Footer Container -->
+  <footer id="footer-container" class="bg-maroon text-white border-t-8 border-saffron mt-auto"></footer>
+
+  <!-- Detail/Report Modal Lightbox Container -->
+  <div id="modal-container" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"></div>
+
+  <!-- Image Lightbox Container for Gallery Zoom-in -->
+  <div id="lightbox-container" class="fixed inset-0 z-[60] hidden flex items-center justify-center bg-slate-950/90 p-4 transition-all duration-300"></div>
+
+  <!-- Main Application Logic script -->
+  <script src="app.js"></script>
+</body>
+</html>

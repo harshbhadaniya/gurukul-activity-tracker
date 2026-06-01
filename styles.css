@@ -1,0 +1,131 @@
+/* Playful CSS Styles & Animations */
+
+/* Custom Font Integrations */
+body {
+  font-family: 'Outfit', 'Noto Sans Gujarati', sans-serif;
+  background-image: radial-gradient(#F5822020 2px, transparent 2px), radial-gradient(#80000015 2px, transparent 2px);
+  background-size: 32px 32px;
+  background-position: 0 0, 16px 16px;
+}
+
+/* Custom Scrollbar for a modern LKG/UKG vibe */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #FFF3E8; 
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #F58220; 
+  border: 3px solid #FFF3E8;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #800000; 
+}
+
+/* Keyframes for Playful Animations */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(1deg);
+  }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes drawBorder {
+  to { stroke-dashoffset: 0; }
+}
+
+/* Utility Animation Classes */
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-wiggle:hover {
+  animation: wiggle 0.4s ease-in-out infinite;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Playful doodle-like borders and custom shapes */
+.doodle-border {
+  border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+}
+
+.doodle-border-alt {
+  border-radius: 20px 255px 20px 225px/225px 20px 255px 20px;
+}
+
+/* Dynamic Hover Effects */
+.card-hover-effect {
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 12px 0 0 rgba(128, 0, 0, 0.2);
+}
+
+/* Pastel Card Variations */
+.pastel-card-yellow {
+  background-color: #FEFCE8;
+  border-color: #FEF08A;
+}
+.pastel-card-blue {
+  background-color: #E0F2FE;
+  border-color: #BAE6FD;
+}
+.pastel-card-orange {
+  background-color: #FFEDD5;
+  border-color: #FED7AA;
+}
+.pastel-card-pink {
+  background-color: #FCE7F3;
+  border-color: #FBCFE8;
+}
+.pastel-card-green {
+  background-color: #DCFCE7;
+  border-color: #BBF7D0;
+}
+
+/* Responsive Custom Sizing & Grid Fixes */
+@media (max-width: 640px) {
+  body {
+    background-size: 24px 24px;
+    background-position: 0 0, 12px 12px;
+  }
+}
