@@ -129,3 +129,69 @@ body {
     background-position: 0 0, 12px 12px;
   }
 }
+
+/* --- Kids Corner Upgrade Styles --- */
+
+/* 3D Card Flip styling for Alphabet Cards */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.flip-card-inner {
+  transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transform-style: preserve-3d;
+}
+
+.flip-card-flipped {
+  transform: rotateY(180deg);
+}
+
+/* Playful Balloon Float Keyframes & Animations */
+@keyframes balloonFloat {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-12px) rotate(-3deg);
+  }
+  66% {
+    transform: translateY(-4px) rotate(3deg);
+  }
+}
+
+.animate-balloon-float {
+  animation: balloonFloat 5s ease-in-out infinite;
+}
+
+/* Pop explosion particle effect */
+@keyframes popRing {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+    border-width: 8px;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+.animate-pop-ring {
+  animation: popRing 0.4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+}
+
+/* Drawing Slate Crayon Cursor */
+.slate-canvas {
+  cursor: crosshair;
+}

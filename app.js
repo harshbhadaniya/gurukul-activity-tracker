@@ -11,6 +11,7 @@ const TRANSLATIONS = {
     navHome: "Home",
     navGallery: "Activities Gallery",
     navCalendar: "Playful Calendar",
+    navKidsCorner: "Kids Corner",
     langToggle: "ગુજરાતી",
     
     // Home Page
@@ -79,6 +80,7 @@ const TRANSLATIONS = {
     navHome: "હોમ",
     navGallery: "પ્રવૃત્તિ ગેલેરી",
     navCalendar: "રમતિયાળ કેલેન્ડર",
+    navKidsCorner: "કિડ્સ કોર્નર",
     langToggle: "English",
     
     // Home Page
@@ -208,6 +210,8 @@ function renderApp() {
     renderCalendar(mainContent);
   } else if (appState.currentPage === 'report') {
     renderActivityReport(mainContent, appState.selectedActivityId);
+  } else if (appState.currentPage === 'kidscorner') {
+    renderKidsCorner(mainContent);
   }
   
   // Update icons after DOM rendering
@@ -254,6 +258,11 @@ function renderHeader() {
           ${appState.currentPage === 'calendar' ? 'bg-maroon text-white border-maroon shadow-playful-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
           <i data-lucide="calendar" class="w-4 h-4"></i>
           <span>${t('navCalendar')}</span>
+        </button>
+        <button onclick="navigateTo('kidscorner')" class="px-4 py-2 rounded-full font-bold text-sm md:text-base border-2 border-transparent transition-all flex items-center gap-1.5
+          ${appState.currentPage === 'kidscorner' ? 'bg-maroon text-white border-maroon shadow-playful-sm' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+          <i data-lucide="gamepad-2" class="w-4 h-4"></i>
+          <span>${t('navKidsCorner')}</span>
         </button>
         
         <!-- Language Toggler (Large, High Contrast, Easy to Tap) -->
@@ -1014,4 +1023,587 @@ function formatDate(dateString) {
   }
   
   return date.toLocaleDateString('en-US', options);
+}
+
+// ==========================================
+// --- 13. Kids Corner Section Implementation ---
+// ==========================================
+
+// Kids Corner Datasets
+const ENGLISH_ALPHABETS = [
+  { letter: "A", word: "Apple", emoji: "🍎", color: "bg-red-50 border-red-300 text-red-600" },
+  { letter: "B", word: "Ball", emoji: "⚽", color: "bg-blue-50 border-blue-300 text-blue-600" },
+  { letter: "C", word: "Cat", emoji: "🐱", color: "bg-orange-50 border-orange-300 text-orange-600" },
+  { letter: "D", word: "Dog", emoji: "🐶", color: "bg-amber-50 border-amber-300 text-amber-800" },
+  { letter: "E", word: "Elephant", emoji: "🐘", color: "bg-purple-50 border-purple-300 text-purple-600" },
+  { letter: "F", word: "Fish", emoji: "🐟", color: "bg-sky-50 border-sky-300 text-sky-600" },
+  { letter: "G", word: "Grapes", emoji: "🍇", color: "bg-emerald-50 border-emerald-300 text-emerald-600" },
+  { letter: "H", word: "Horse", emoji: "🐎", color: "bg-amber-50 border-amber-300 text-amber-700" },
+  { letter: "I", word: "Ice Cream", emoji: "🍦", color: "bg-pink-50 border-pink-300 text-pink-500" },
+  { letter: "J", word: "Joker", emoji: "🤡", color: "bg-rose-50 border-rose-300 text-rose-600" },
+  { letter: "K", word: "Kite", emoji: "🪁", color: "bg-teal-50 border-teal-300 text-teal-600" },
+  { letter: "L", word: "Lion", emoji: "🦁", color: "bg-orange-50 border-orange-300 text-orange-700" },
+  { letter: "M", word: "Monkey", emoji: "🐒", color: "bg-yellow-50 border-yellow-300 text-yellow-700" },
+  { letter: "N", word: "Nest", emoji: "🪹", color: "bg-stone-50 border-stone-300 text-stone-600" },
+  { letter: "O", word: "Orange", emoji: "🍊", color: "bg-orange-50 border-orange-300 text-orange-500" },
+  { letter: "P", word: "Parrot", emoji: "🦜", color: "bg-green-50 border-green-300 text-green-600" },
+  { letter: "Q", word: "Queen", emoji: "👸", color: "bg-purple-50 border-purple-300 text-purple-700" },
+  { letter: "R", word: "Rabbit", emoji: "🐇", color: "bg-slate-50 border-slate-300 text-slate-600" },
+  { letter: "S", word: "Sun", emoji: "☀️", color: "bg-amber-50 border-amber-300 text-amber-500" },
+  { letter: "T", word: "Tiger", emoji: "🐅", color: "bg-yellow-50 border-yellow-300 text-yellow-800" },
+  { letter: "U", word: "Umbrella", emoji: "☔", color: "bg-indigo-50 border-indigo-300 text-indigo-600" },
+  { letter: "V", word: "Violin", emoji: "🎻", color: "bg-red-50 border-red-300 text-red-700" },
+  { letter: "W", word: "Watch", emoji: "⌚", color: "bg-sky-50 border-sky-300 text-sky-500" },
+  { letter: "X", word: "Xylophone", emoji: "🎼", color: "bg-violet-50 border-violet-300 text-violet-600" },
+  { letter: "Y", word: "Yak", emoji: "🐂", color: "bg-amber-50 border-amber-300 text-amber-900" },
+  { letter: "Z", word: "Zebra", emoji: "🦓", color: "bg-neutral-50 border-neutral-300 text-neutral-800" }
+];
+
+const GUJARATI_ALPHABETS = [
+  { letter: "ક", word: "કબૂતર (Pigeon)", emoji: "🕊️", color: "bg-sky-50 border-sky-300 text-sky-600" },
+  { letter: "ખ", word: "ખિસકોલી (Squirrel)", emoji: "🐿️", color: "bg-orange-50 border-orange-300 text-orange-600" },
+  { letter: "ગ", word: "ગાય (Cow)", emoji: "🐮", color: "bg-amber-50 border-amber-300 text-amber-700" },
+  { letter: "ઘ", word: "ઘર (House)", emoji: "🏠", color: "bg-emerald-50 border-emerald-300 text-emerald-600" },
+  { letter: "ચ", word: "ચકલી (Sparrow)", emoji: "🐦", color: "bg-blue-50 border-blue-300 text-blue-600" },
+  { letter: "છ", word: "છત્રી (Umbrella)", emoji: "☔", color: "bg-pink-50 border-pink-300 text-pink-600" },
+  { letter: "જ", word: "જલેબી (Sweet)", emoji: "🥨", color: "bg-yellow-50 border-yellow-300 text-yellow-600" },
+  { letter: "ઝ", word: "ઝાડ (Tree)", emoji: "🌳", color: "bg-emerald-50 border-emerald-300 text-emerald-700" },
+  { letter: "ટ", word: "ટમેટું (Tomato)", emoji: "🍅", color: "bg-red-50 border-red-300 text-red-600" },
+  { letter: "ઠ", word: "ઠગ (Thief)", emoji: "👤", color: "bg-stone-50 border-stone-300 text-stone-600" },
+  { letter: "ડ", word: "ડમરું (Drum)", emoji: "🪘", color: "bg-orange-50 border-orange-300 text-orange-700" },
+  { letter: "ઢ", word: "ઢેલ (Peafowl)", emoji: "🦚", color: "bg-teal-50 border-teal-300 text-teal-600" },
+  { letter: "ત", word: "તલવાર (Sword)", emoji: "⚔️", color: "bg-slate-50 border-slate-300 text-slate-600" },
+  { letter: "થ", word: "થાળી (Plate)", emoji: "🍽️", color: "bg-purple-50 border-purple-300 text-purple-600" },
+  { letter: "દ", word: "દડો (Ball)", emoji: "⚽", color: "bg-blue-50 border-blue-300 text-blue-700" },
+  { letter: "ધ", word: "ધનુષ (Bow)", emoji: "🏹", color: "bg-red-50 border-red-300 text-red-700" },
+  { letter: "ન", word: "નળ (Tap)", emoji: "🚰", color: "bg-sky-50 border-sky-300 text-sky-700" },
+  { letter: "પ", word: "પતંગ (Kite)", emoji: "🪁", color: "bg-rose-50 border-rose-300 text-rose-600" },
+  { letter: "ફ", word: "ફૂલ (Flower)", emoji: "🌸", color: "bg-pink-50 border-pink-300 text-pink-500" },
+  { letter: "બ", word: "બકરી (Goat)", emoji: "🐐", color: "bg-amber-50 border-amber-300 text-amber-800" },
+  { letter: "ભ", word: "ભમરડો (Top)", emoji: "🪀", color: "bg-purple-50 border-purple-300 text-purple-800" },
+  { letter: "મ", word: "મગર (Crocodile)", emoji: "🐊", color: "bg-emerald-50 border-emerald-300 text-emerald-800" },
+  { letter: "ય", word: "યજ્ઞ (Yajna)", emoji: "🔥", color: "bg-orange-50 border-orange-300 text-orange-500" },
+  { letter: "ર", word: "રમકડાં (Toys)", emoji: "🧸", color: "bg-rose-50 border-rose-300 text-rose-500" }
+];
+
+const KIDS_ANIMALS = [
+  { id: "lion", name: { en: "Lion", gu: "સિંહ" }, emoji: "🦁", soundUrl: "https://upload.wikimedia.org/wikipedia/commons/5/5a/Lions_growling.ogg", color: "bg-orange-50 border-orange-300 text-orange-700" },
+  { id: "elephant", name: { en: "Elephant", gu: "હાથી" }, emoji: "🐘", soundUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e0/Elephant_trunk_growl_trumpet.ogg", color: "bg-purple-50 border-purple-300 text-purple-700" },
+  { id: "cat", name: { en: "Cat", gu: "બિલાડી" }, emoji: "🐱", soundUrl: "https://upload.wikimedia.org/wikipedia/commons/1/15/Meow.ogg", color: "bg-yellow-50 border-yellow-300 text-yellow-700" },
+  { id: "dog", name: { en: "Dog", gu: "કૂતરો" }, emoji: "🐶", soundUrl: "https://upload.wikimedia.org/wikipedia/commons/d/d5/Dog_barking.ogg", color: "bg-amber-50 border-amber-300 text-amber-800" },
+  { id: "cow", name: { en: "Cow", gu: "ગાય" }, emoji: "🐮", soundUrl: "https://upload.wikimedia.org/wikipedia/commons/0/0f/Cow_mooing.ogg", color: "bg-emerald-50 border-emerald-300 text-emerald-800" }
+];
+
+const KIDS_BALLOONS = [
+  { color: "Red", colorGu: "લાલ", hex: "#EF4444" },
+  { color: "Yellow", colorGu: "પીળો", hex: "#FACC15" },
+  { color: "Green", colorGu: "લીલો", hex: "#22C55E" },
+  { color: "Blue", colorGu: "વાદળી", hex: "#3B82F6" },
+  { color: "Orange", colorGu: "કેસરી", hex: "#F97316" }
+];
+
+// Audio Context Web Audio Synthesizers
+let kidsAudioCtx = null;
+
+function getKidsAudioContext() {
+  if (!kidsAudioCtx) {
+    kidsAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  if (kidsAudioCtx.state === 'suspended') {
+    kidsAudioCtx.resume();
+  }
+  return kidsAudioCtx;
+}
+
+function playTingSound() {
+  try {
+    const ctx = getKidsAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(1760, ctx.currentTime + 0.12);
+    
+    gain.gain.setValueAtTime(0.1, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.21);
+  } catch (e) {
+    console.warn("Audio Context ting sound blocked: ", e);
+  }
+}
+
+function playPopSound() {
+  try {
+    const ctx = getKidsAudioContext();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(260, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(60, ctx.currentTime + 0.1);
+    
+    gain.gain.setValueAtTime(0.2, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+    
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    
+    osc.start();
+    osc.stop(ctx.currentTime + 0.13);
+  } catch (e) {
+    console.warn("Audio Context pop sound blocked: ", e);
+  }
+}
+
+// Kids Corner State
+let kidsCornerState = {
+  activeTab: 'alphabets', // 'alphabets' | 'colors' | 'animals' | 'slate'
+  alphabetLang: 'en', // 'en' | 'gu'
+  slateColor: '#F58220' // Default Pen Color (Saffron)
+};
+
+// Render Main Kids Corner
+function renderKidsCorner(container) {
+  const isGu = appState.currentLanguage === 'gu';
+  
+  container.innerHTML = `
+    <div class="text-center space-y-2 mb-8 animate-fade-in font-playfulRounded">
+      <span class="text-5xl animate-bounce-slow inline-block">🎡🎒🎨</span>
+      <h2 class="text-3xl md:text-5xl font-black text-maroon tracking-wide">
+        ${isGu ? 'બાળ શિક્ષણ અને રમતગમત' : 'Kids Learn & Play'}
+      </h2>
+      <p class="text-slate-600 text-sm md:text-lg font-semibold max-w-2xl mx-auto">
+        ${isGu ? 'અમારા પ્રારંભિક નાના બાળકો માટે રમત સાથે જ્ઞાન મેળવવાનું ખાસ કેન્દ્ર' : 'A colorful interactive space filled with audio chimes and visuals for early childhood learners.'}
+      </p>
+    </div>
+    
+    <!-- Kids Corner Navigation Tabs -->
+    <div class="flex flex-wrap justify-center gap-3 md:gap-4 mb-8 font-playfulRounded">
+      <button onclick="changeKidsCornerTab('alphabets')" class="px-5 py-3 rounded-2xl font-bold text-sm md:text-base shadow-playful-sm border-2 hover:scale-105 transition-all flex items-center gap-2
+        ${kidsCornerState.activeTab === 'alphabets' ? 'bg-saffron text-white border-maroon' : 'bg-white border-slate-300 text-slate-600'}">
+        <i data-lucide="case-sensitive" class="w-5 h-5"></i>
+        <span>${isGu ? 'એ.બી.સી & ક.ખ.ગ' : 'Alphabet Grid'}</span>
+      </button>
+      
+      <button onclick="changeKidsCornerTab('colors')" class="px-5 py-3 rounded-2xl font-bold text-sm md:text-base shadow-playful-sm border-2 hover:scale-105 transition-all flex items-center gap-2
+        ${kidsCornerState.activeTab === 'colors' ? 'bg-sky-500 text-white border-maroon' : 'bg-white border-slate-300 text-slate-600'}">
+        <i data-lucide="palette" class="w-5 h-5"></i>
+        <span>${isGu ? 'રંગોની મજા (ફુગ્ગા)' : 'Color Balloons'}</span>
+      </button>
+      
+      <button onclick="changeKidsCornerTab('animals')" class="px-5 py-3 rounded-2xl font-bold text-sm md:text-base shadow-playful-sm border-2 hover:scale-105 transition-all flex items-center gap-2
+        ${kidsCornerState.activeTab === 'animals' ? 'bg-emerald-500 text-white border-maroon' : 'bg-white border-slate-300 text-slate-600'}">
+        <i data-lucide="dog" class="w-5 h-5"></i>
+        <span>${isGu ? 'પ્રાણી સૃષ્ટિ' : 'Animal Sounds'}</span>
+      </button>
+      
+      <button onclick="changeKidsCornerTab('slate')" class="px-5 py-3 rounded-2xl font-bold text-sm md:text-base shadow-playful-sm border-2 hover:scale-105 transition-all flex items-center gap-2
+        ${kidsCornerState.activeTab === 'slate' ? 'bg-pink-500 text-white border-maroon' : 'bg-white border-slate-300 text-slate-600'}">
+        <i data-lucide="pencil" class="w-5 h-5"></i>
+        <span>${isGu ? 'જાદુઈ પાટી' : 'Magic Slate'}</span>
+      </button>
+    </div>
+    
+    <!-- Active Tab Content Container -->
+    <div id="kids-corner-container" class="bg-white border-4 border-maroon rounded-3xl p-6 md:p-10 shadow-playful-md min-h-[450px] relative overflow-hidden transition-all duration-300">
+      ${renderActiveKidsTab()}
+    </div>
+  `;
+  
+  // Initialize canvas drawing slate if active
+  if (kidsCornerState.activeTab === 'slate') {
+    initMagicSlate();
+  }
+}
+
+// Router for Sub-Tabs
+function changeKidsCornerTab(tab) {
+  playTingSound();
+  kidsCornerState.activeTab = tab;
+  renderApp();
+}
+
+function toggleAlphabetLang(lang) {
+  playTingSound();
+  kidsCornerState.alphabetLang = lang;
+  renderApp();
+}
+
+// Render Inner Tab HTML
+function renderActiveKidsTab() {
+  const isGu = appState.currentLanguage === 'gu';
+  
+  if (kidsCornerState.activeTab === 'alphabets') {
+    const list = kidsCornerState.alphabetLang === 'en' ? ENGLISH_ALPHABETS : GUJARATI_ALPHABETS;
+    return `
+      <!-- Alphabet Cards Sub-section -->
+      <div class="space-y-6 font-playfulRounded">
+        <div class="flex items-center justify-between flex-wrap gap-4 border-b-2 border-dashed border-slate-200 pb-4">
+          <h3 class="text-xl md:text-2xl font-black text-maroon flex items-center gap-2">
+            <i data-lucide="case-sensitive" class="text-saffron w-6 h-6"></i>
+            <span>${isGu ? 'અક્ષરો અને ચિત્રો ઓળખો' : 'Learn Alphabets & Pictures'}</span>
+          </h3>
+          
+          <!-- Language Toggle inside kids section -->
+          <div class="flex gap-2 bg-slate-100 p-1.5 rounded-full border border-slate-300">
+            <button onclick="toggleAlphabetLang('en')" class="px-4 py-1.5 rounded-full font-bold text-xs md:text-sm transition-all
+              ${kidsCornerState.alphabetLang === 'en' ? 'bg-maroon text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200'}">
+              English
+            </button>
+            <button onclick="toggleAlphabetLang('gu')" class="px-4 py-1.5 rounded-full font-bold text-xs md:text-sm transition-all
+              ${kidsCornerState.alphabetLang === 'gu' ? 'bg-maroon text-white shadow-sm' : 'text-slate-600 hover:bg-slate-200'}">
+              ગુજરાતી (ક-જ)
+            </button>
+          </div>
+        </div>
+        
+        <p class="text-slate-500 font-bold text-xs md:text-sm text-center">
+          👉 ${isGu ? 'કોઈપણ અક્ષર કાર્ડ પર ક્લિક કરો અને છુપાયેલું રમકડું જુઓ!' : 'Click any alphabet card to flip and discover the hidden image!'}
+        </p>
+        
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
+          ${list.map((item, index) => `
+            <div onclick="handleAlphabetCardClick(${index})" 
+                 class="h-28 md:h-32 perspective-1000 cursor-pointer">
+              <!-- Flip Card Inner Wrapper -->
+              <div id="flip-card-${index}" class="flip-card-inner w-full h-full relative transform-style-3d">
+                
+                <!-- Front Side (Letter) -->
+                <div class="absolute inset-0 w-full h-full backface-hidden border-3 border-maroon rounded-2xl flex items-center justify-center shadow-playful-sm font-black text-3xl md:text-4xl hover:scale-105 transition-all
+                  ${item.color}">
+                  <span>${item.letter}</span>
+                </div>
+                
+                <!-- Back Side (Picture & Word) -->
+                <div class="absolute inset-0 w-full h-full backface-hidden rotate-y-180 border-3 border-maroon rounded-2xl flex flex-col items-center justify-center bg-white p-2 shadow-playful-sm text-center">
+                  <span class="text-3xl md:text-4xl">${item.emoji}</span>
+                  <span class="text-xs md:text-sm font-black text-slate-700 truncate w-full mt-1">${item.word}</span>
+                </div>
+                
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (kidsCornerState.activeTab === 'colors') {
+    return `
+      <!-- Color Fun Balloons Sub-section -->
+      <div class="space-y-8 font-playfulRounded select-none">
+        <div class="border-b-2 border-dashed border-slate-200 pb-4">
+          <h3 class="text-xl md:text-2xl font-black text-maroon flex items-center gap-2">
+            <i data-lucide="palette" class="text-sky-500 w-6 h-6"></i>
+            <span>${isGu ? 'રંગોત્સવ ફુગ્ગા મનોરંજન' : 'Fun with Colors'}</span>
+          </h3>
+        </div>
+        
+        <!-- Big text banner displaying color name -->
+        <div id="color-fun-banner" class="min-h-[140px] flex items-center justify-center p-4 bg-slate-50 border-4 border-dashed border-slate-200 rounded-2xl relative shadow-inner">
+          <p class="text-slate-500 font-bold text-lg md:text-xl italic">
+            ${isGu ? 'ગુબ્બારો ફોડો અને રંગોનો આનંદ માણો! 🎈' : 'Pop a balloon and enjoy the colors! 🎈'}
+          </p>
+        </div>
+        
+        <!-- Balloons Layout row -->
+        <div class="flex flex-wrap items-center justify-around gap-6 pt-4 min-h-[160px]">
+          ${KIDS_BALLOONS.map((b, i) => `
+            <div class="relative w-20 h-28 flex justify-center">
+              
+              <!-- Pop animation overlay ring -->
+              <div id="balloon-ring-${i}" class="hidden absolute top-4 w-16 h-16 border-8 border-slate-300 rounded-full z-20 pointer-events-none"></div>
+              
+              <!-- Balloon body -->
+              <button id="balloon-${i}" 
+                onclick="popBalloon(${i}, '${b.hex}', '${b.color}', '${b.colorGu}')"
+                style="background-color: ${b.hex};"
+                class="w-16 h-20 rounded-t-full rounded-b-[40px] shadow-lg hover:scale-110 active:scale-95 transition-all duration-300 animate-balloon-float relative shrink-0 border-2 border-white/20
+                       after:content-[''] after:absolute after:bottom-[-4px] after:left-1/2 after:transform after:-translate-x-1/2 after:border-t-[6px] after:border-t-inherit after:border-x-[4px] after:border-x-transparent">
+                <!-- Glossy highlight bubble inside balloon -->
+                <div class="absolute top-2 left-3 w-3 h-6 bg-white/25 rounded-full rotate-12"></div>
+                <!-- Thread rope below balloon -->
+                <div class="absolute bottom-[-18px] left-1/2 transform -translate-x-1/2 w-0.5 h-5 bg-slate-400"></div>
+              </button>
+              
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (kidsCornerState.activeTab === 'animals') {
+    return `
+      <!-- Animal Sounds Kingdom Sub-section -->
+      <div class="space-y-6 font-playfulRounded select-none">
+        <div class="border-b-2 border-dashed border-slate-200 pb-4">
+          <h3 class="text-xl md:text-2xl font-black text-maroon flex items-center gap-2">
+            <i data-lucide="dog" class="text-emerald-500 w-6 h-6"></i>
+            <span>${isGu ? 'પ્રાણીઓનો અવાજ ઓળખો' : 'Animal Kingdom Sounds'}</span>
+          </h3>
+        </div>
+        
+        <p class="text-slate-500 font-bold text-xs md:text-sm text-center">
+          👉 ${isGu ? 'પ્રાણી કાર્ડ પર ક્લિક કરો અને તેમનો અવાજ સાંભળો!' : 'Click any animal card to hear their real voices!'}
+        </p>
+        
+        <!-- Grid of Animals -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-6 pt-4">
+          ${KIDS_ANIMALS.map(animal => `
+            <div id="animal-card-${animal.id}" 
+                 onclick="bounceAnimalCard('${animal.id}', '${animal.soundUrl}')"
+                 class="cursor-pointer border-3 border-maroon rounded-2xl p-5 shadow-playful-sm flex flex-col items-center justify-center gap-3 hover:shadow-playful-md transition-all duration-300
+                        ${animal.color}">
+              <span class="text-5xl md:text-6xl animate-float" style="animation-delay: ${Math.random()}s;">${animal.emoji}</span>
+              <div class="text-center">
+                <h4 class="font-black text-slate-800 text-sm md:text-base">${animal.name[appState.currentLanguage]}</h4>
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">${animal.id}</span>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  if (kidsCornerState.activeTab === 'slate') {
+    return `
+      <!-- Magic slate drawing canvas Sub-section -->
+      <div class="space-y-6 font-playfulRounded select-none">
+        <div class="flex items-center justify-between flex-wrap gap-4 border-b-2 border-dashed border-slate-200 pb-4">
+          <h3 class="text-xl md:text-2xl font-black text-maroon flex items-center gap-2">
+            <i data-lucide="pencil" class="text-pink-500 w-6 h-6"></i>
+            <span>${isGu ? 'જાદુઈ સ્લેટ (ચિત્રકામ પાટી)' : 'Magic Writing Slate'}</span>
+          </h3>
+          
+          <!-- Drawing Color pens -->
+          <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-300">
+            <button onclick="setSlatePenColor('#F58220')" class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110 flex items-center justify-center bg-saffron
+              ${kidsCornerState.slateColor === '#F58220' ? 'border-maroon scale-110 shadow-md ring-2 ring-amber-300' : 'border-transparent'}">
+            </button>
+            <button onclick="setSlatePenColor('#800000')" class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110 flex items-center justify-center bg-maroon
+              ${kidsCornerState.slateColor === '#800000' ? 'border-white scale-110 shadow-md ring-2 ring-red-300' : 'border-transparent'}">
+            </button>
+            <button onclick="setSlatePenColor('#0284c7')" class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110 flex items-center justify-center bg-sky-600
+              ${kidsCornerState.slateColor === '#0284c7' ? 'border-maroon scale-110 shadow-md ring-2 ring-sky-300' : 'border-transparent'}">
+            </button>
+            <button onclick="setSlatePenColor('#16a34a')" class="w-8 h-8 rounded-full border-2 transition-all hover:scale-110 flex items-center justify-center bg-green-600
+              ${kidsCornerState.slateColor === '#16a34a' ? 'border-maroon scale-110 shadow-md ring-2 ring-emerald-300' : 'border-transparent'}">
+            </button>
+          </div>
+        </div>
+        
+        <!-- Canvas Slate frame -->
+        <div class="bg-slate-100 border-4 border-slate-800 rounded-2xl p-2 shadow-inner max-w-2xl mx-auto">
+          <canvas id="magic-slate-canvas" class="slate-canvas w-full h-[280px] bg-white rounded-xl touch-none"></canvas>
+        </div>
+        
+        <!-- Controls -->
+        <div class="flex justify-center pt-2">
+          <button onclick="clearMagicSlate()" class="px-6 py-2.5 bg-maroon hover:bg-maroon-hover text-white rounded-xl font-bold text-sm shadow-playful-sm border-2 border-transparent flex items-center gap-1.5 hover:scale-105 active:scale-95 transition-all">
+            <i data-lucide="eraser" class="w-4.5 h-4.5"></i>
+            <span>${isGu ? 'પાટી સાફ કરો' : 'Clear Slate'}</span>
+          </button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Flip Card click trigger
+function handleAlphabetCardClick(index) {
+  playTingSound();
+  const cardInner = document.getElementById(`flip-card-${index}`);
+  if (cardInner) {
+    cardInner.classList.toggle('flip-card-flipped');
+  }
+}
+
+// Popping balloon action
+function popBalloon(index, colorHex, colorEn, colorGu) {
+  playPopSound();
+  
+  const balloonBtn = document.getElementById(`balloon-${index}`);
+  if (balloonBtn) {
+    balloonBtn.classList.add('scale-0', 'opacity-0');
+    
+    // Show pop ring
+    const ring = document.getElementById(`balloon-ring-${index}`);
+    if (ring) {
+      ring.classList.remove('hidden');
+      ring.classList.add('animate-pop-ring');
+    }
+  }
+  
+  // Transition background color of canvas frame
+  const container = document.getElementById('kids-corner-container');
+  if (container) {
+    container.style.transition = 'background-color 0.4s ease-out';
+    container.style.backgroundColor = colorHex;
+  }
+  
+  // Update display banner
+  const banner = document.getElementById('color-fun-banner');
+  if (banner) {
+    banner.innerHTML = `
+      <div class="animate-scale-up text-center space-y-2 select-none">
+        <h2 class="text-6xl md:text-8xl font-black text-slate-800 tracking-wide">${colorEn}</h2>
+        <h3 class="text-4xl md:text-6xl font-bold text-slate-700">${colorGu}</h3>
+      </div>
+    `;
+  }
+  
+  // Reset back to normal after 2 seconds
+  setTimeout(() => {
+    if (container) {
+      container.style.backgroundColor = '';
+    }
+    if (banner) {
+      banner.innerHTML = `
+        <p class="text-slate-500 font-bold text-lg md:text-xl italic animate-fade-in">
+          ${appState.currentLanguage === 'gu' ? 'ગુબ્બારો ફોડો અને રંગોનો આનંદ માણો! 🎈' : 'Pop a balloon and enjoy the colors! 🎈'}
+        </p>
+      `;
+    }
+    if (balloonBtn) {
+      balloonBtn.classList.remove('scale-0', 'opacity-0');
+    }
+    const ring = document.getElementById(`balloon-ring-${index}`);
+    if (ring) {
+      ring.classList.add('hidden');
+      ring.classList.remove('animate-pop-ring');
+    }
+  }, 2200);
+}
+
+// Bouncing Animal Card sound
+function bounceAnimalCard(id, soundUrl) {
+  playTingSound();
+  
+  const card = document.getElementById(`animal-card-${id}`);
+  if (card) {
+    card.classList.add('animate-[wiggle_0.4s_ease-in-out_infinite]', 'scale-105');
+  }
+  
+  // Stop previously running sound
+  if (window.activeAnimalAudio) {
+    window.activeAnimalAudio.pause();
+    window.activeAnimalAudio = null;
+  }
+  
+  const audio = new Audio(soundUrl);
+  window.activeAnimalAudio = audio;
+  audio.volume = 0.8;
+  
+  audio.play().catch(e => {
+    console.warn("Audio play blocked: ", e);
+  });
+  
+  audio.onended = () => {
+    if (card) {
+      card.classList.remove('animate-[wiggle_0.4s_ease-in-out_infinite]', 'scale-105');
+    }
+  };
+  
+  setTimeout(() => {
+    if (card) {
+      card.classList.remove('animate-[wiggle_0.4s_ease-in-out_infinite]', 'scale-105');
+    }
+  }, 2500);
+}
+
+// Slate draw settings
+function setSlatePenColor(color) {
+  playTingSound();
+  kidsCornerState.slateColor = color;
+  
+  // Direct DOM update of border styles to avoid clearing canvas
+  renderKidsCorner(document.getElementById('main-content'));
+}
+
+function clearMagicSlate() {
+  playPopSound();
+  const canvas = document.getElementById('magic-slate-canvas');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  }
+}
+
+// Magic slate event listeners compiler
+function initMagicSlate() {
+  const canvas = document.getElementById('magic-slate-canvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  
+  function resizeCanvas() {
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.lineWidth = 6;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+  }
+  
+  resizeCanvas();
+  
+  let drawing = false;
+  
+  function startDraw(e) {
+    e.preventDefault();
+    drawing = true;
+    playTingSound();
+    draw(e);
+  }
+  
+  function endDraw() {
+    drawing = false;
+    ctx.beginPath();
+  }
+  
+  function draw(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    
+    let clientX, clientY;
+    if (e.touches && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    }
+    
+    const rect = canvas.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    
+    ctx.strokeStyle = kidsCornerState.slateColor;
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+  
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  canvas.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('mouseleave', endDraw);
+  
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  canvas.addEventListener('touchend', endDraw);
 }
